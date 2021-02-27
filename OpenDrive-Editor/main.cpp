@@ -13,7 +13,7 @@ using namespace std;
 
 const char *help_message = 
 "OpenDrive Editor v0.5\n"
-"Augusto Isotton - 2021\n"
+"Soniccd123 - 2021\n"
 "\n"
 "USAGE:\n"
 "Device connetion:\n"
