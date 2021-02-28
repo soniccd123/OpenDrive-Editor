@@ -5,6 +5,8 @@ Its a very simple command line software to control the Programmer throug USB CDC
 
 Compiled binary in the bin folder, usage information in the README.txt
 
+Sugestions and modifications to the software are welcome!
+
 # Other repositories of the same family
 - OpenDrive Genesis: https://github.com/soniccd123/OpenDrive-Genesis
 - OpenDrive Programmer: https://github.com/soniccd123/OpenDrive-Programmer
