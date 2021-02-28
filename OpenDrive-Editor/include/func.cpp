@@ -301,7 +301,7 @@ void write()
 	fread(fileBuf, fileSize, 1, file);
 	//Calculate number of blocks
 	blocos = fileSize/256;
-		
+	
 	
 	unsigned char send_addr[5] = {'w', 'n', ((blocos & 0xFF)), ((blocos & 0xFF00)>>8), ((blocos & 0xFF0000)>>16)};
 	if (memory_mode == 1)
@@ -427,11 +427,11 @@ void read_sr()	//Read Status Register
 	printf("%.2X", (int)send_addr[1]);
 }
 
-void clear_sr()	//Clear Status Register
+void clear_sr()	//Debug operations
 {
 	// Request SR Clear
-	unsigned char send_addr[2] = {'d', 'c'};
-	serial.writeBytes(send_addr, 2);
+	unsigned char send_addr[7] = {'w', 'a', 0x00, 0x00, 0x00, 0x00, 0x00};
+	serial.writeBytes(send_addr, 7);
 	
 	// Wait for answer
 	char test = serial.readBytes(send_addr,2,10000);
