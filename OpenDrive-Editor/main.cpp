@@ -41,11 +41,8 @@ const char *help_message =
 "Other:\n"
 "-h	- View this message\n";
  
-typedef unsigned char BYTE; //This variables need a clean up
-char* set_byte = "n";
+typedef unsigned char BYTE;
 char test;
-int teste = 0;
-long texto = 256456;
 unsigned char buffer[512];
 
 int mode;			//1- Chip options; 2- Dump; 3- Erase chip; 4- Verification; 5- Write file
@@ -184,9 +181,6 @@ int main(int argc, char *argv[])
 		write();
 	}
 	
-	
-	//serial_init();
 	string arquivo;
-	//main_menu();
     return 0 ;
 }

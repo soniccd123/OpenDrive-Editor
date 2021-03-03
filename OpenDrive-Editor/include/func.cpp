@@ -15,19 +15,6 @@ extern int size;
 extern int memory_mode;
 
 //---------------------------------------------------------
-//SERIAL OPERATIONS
-//---------------------------------------------------------
-/* void serial_init()	//Serial initialization
-{
-    // Connection to serial port
-    char errorOpening = serial.openDevice(port, 115200);
-
-    // If connection fails, return the error code otherwise, display a success message
-    //if (errorOpening!=1) return errorOpening;
-    printf ("Conectado \n\n");
-}  */
-
-//---------------------------------------------------------
 //FILE OPERATIONS
 //---------------------------------------------------------
 long getFileSize(FILE *file)	// Get the size of a file
@@ -80,8 +67,8 @@ void is_erased()				//Verify Erasure
 			//Check word for 0xFF (Erased state), branch and display address+data if not erased
 			if (buffer[loop] != 0xFF || buffer[loop+1] != 0xFF)
 			{
-				cout << "\nByte nao apagado em: " << addr;
-				cout << "\nConteudo: ";
+				cout << "\nNon erased word at: " << addr;
+				cout << "\nContents: ";
 				cout << "0x";
 				printf("%.2X", (int)buffer[loop]);
 				cout << " 0x";
@@ -103,17 +90,17 @@ void is_erased()				//Verify Erasure
 	
 	//Stop clock and calculate transfer rate
 	auto end = chrono::steady_clock::now();
-	cout << "\nApagado!";
+	cout << "\nFlash is erased";
 	float tempo = chrono::duration_cast<chrono::microseconds>(end-start).count();
-	cout << "\nTempo(s): " << chrono::duration_cast<chrono::milliseconds>(end-start).count() << "ms";
-	cout << "\nTaxa de transferencia(kB/s): " << (blocos*512)/(tempo/1000) << "kB/s";
+	cout << "\nTime(s): " << chrono::duration_cast<chrono::milliseconds>(end-start).count() << "ms";
+	cout << "\nTransfer Rate(kB/s): " << (blocos*512)/(tempo/1000) << "kB/s";
 }
 
 void read_addr()	//Read arbitrary address
 {
 	// Input Address to be read
 	uint32_t addr;
-	cout << "Qual endereco ler?: ";
+	cout << "Address to be read: ";
 	cin >> addr;
 						
 	// Send Address to be read
@@ -124,7 +111,7 @@ void read_addr()	//Read arbitrary address
 	char test = serial.readBytes(send_addr,2,10000);
 
 	// Display address and data
-	cout << "\nConteudo: ";
+	cout << "\nContent: ";
 	cout << "0x";
 	printf("%.2X", (int)send_addr[0]);
 	cout << " 0x";
@@ -160,25 +147,27 @@ void dump()
 		char test = serial.readBytes(ready_wait,1,10000);
 	}
 	
-	auto start = chrono::steady_clock::now();
 	char cart_buffer[512];
 	char corrected_end[512];
+	
+	auto start = chrono::steady_clock::now();
+	
 	while (block_n < size)
 	{
 		serial.writeChar('n');
 		char test = serial.readBytes(cart_buffer,512,10000);
-/* 		int loop=0;
-		while (loop < 512)
-		{
-			corrected_end[loop] = cart_buffer[loop+1];
-			corrected_end[loop+1] = cart_buffer[loop];
-			loop++;
-		} */
 		dump_file.write (cart_buffer, 512);
 		block_n++;
 	}
 	serial.writeChar('e');
 	dump_file.close();
+	
+	auto end = chrono::steady_clock::now();
+	cout << "\nDumping completed";
+	float tempo = chrono::duration_cast<chrono::microseconds>(end-start).count();
+	cout << "\nTime(s): " << chrono::duration_cast<chrono::milliseconds>(end-start).count() << "ms";
+	cout << "\nTransfer Rate(kB/s): " << (size*512)/(tempo/1000) << "kB/s";
+	
 	return;
 }
 
@@ -239,13 +228,13 @@ void verify()
 		{
 			if (buffer[loop] != fileBuf[addr] || buffer[loop+1] != fileBuf[addr+1])
 			{
-				cout << "\nDados divergentes em: " << addr;
+				cout << "\nDiferent data in address: " << addr;
 				cout << "\nChip:    ";
 				cout << "0x";
 				printf("%.2X", (int)buffer[loop]);
 				cout << " 0x";
 				printf("%.2X", (int)buffer[loop+1]);
-				cout << "\nArquivo: ";
+				cout << "\nFile: ";
 				cout << "0x";
 				printf("%.2X", (int)fileBuf[addr+1]);
 				cout << " 0x";
@@ -262,10 +251,10 @@ void verify()
 	serial.writeChar('e');
 	
 	auto end = chrono::steady_clock::now();
-	cout << "\nDone!";
+	cout << "\nSuccessful verification";
 	float tempo = chrono::duration_cast<chrono::microseconds>(end-start).count();
-	cout << "\nTempo(s): " << chrono::duration_cast<chrono::milliseconds>(end-start).count() << "ms";
-	cout << "\nTaxa de transferencia(kB/s): " << (fileSize)/(tempo/1000) << "kB/s";
+	cout << "\nTime(s): " << chrono::duration_cast<chrono::milliseconds>(end-start).count() << "ms";
+	cout << "\nTransfer Rate(kB/s): " << (fileSize)/(tempo/1000) << "kB/s";
 	return;
 }
 
@@ -326,8 +315,8 @@ void write()
 		char test = serial.readBytes(send_addr,1,10000);
 		if(send_addr[0] == 'n')
 		{
-			cout << "\n";
-			cout << block_count;
+			//cout << "\n";
+			//cout << block_count;
 			int loop = 0;
 			while (loop < 64)
 			{
@@ -337,21 +326,21 @@ void write()
 			}
 			serial.writeBytes(buffer, 64);
 			send_addr[0] = 0;
-			block_count=block_count+1;
+			//block_count=block_count+1;
 		}
 		else if(send_addr[0] == 'e')
 		{
 			running = 0;
 			auto end = chrono::steady_clock::now();
-			cout << "\nDone!";
+			cout << "\nWrite completed";
 			float tempo = chrono::duration_cast<chrono::microseconds>(end-start).count();
-			cout << "\nTempo(s): " << chrono::duration_cast<chrono::milliseconds>(end-start).count() << "ms";
-			cout << "\nTaxa de transferencia(kB/s): " << (blocos*256)/(tempo/1000) << "kB/s";
+			cout << "\nTime(s): " << chrono::duration_cast<chrono::milliseconds>(end-start).count() << "ms";
+			cout << "\nTransfer Rate(kB/s): " << (blocos*256)/(tempo/1000) << "kB/s";
 			return;
 		}
 		else
 		{
-			cout << "\nFalha";
+			cout << "\nCommunication error";
 			return;
 		}
 	}
